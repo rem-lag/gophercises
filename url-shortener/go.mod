@@ -1,3 +1,3 @@
-module rem-lag/shorturl
+module shorturl
 
 go 1.19
