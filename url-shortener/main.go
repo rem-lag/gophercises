@@ -20,10 +20,13 @@ func hello(w http.ResponseWriter, r *http.Request) {
 func main() {
 
 	mux := defaultMux()
-	tempPaths := map[string]string{
-		"url-1": "https://website.com",
+	mapPaths := map[string]string{
+		"/rem-lag":  "https://github.com/rem-lag",
+		"/cv-stack": "https://stats.stackexchange.com",
 	}
 
-	mapHandler := short.MapHandler(tempPaths, mux)
+	mapHandler := short.MapHandler(mapPaths, mux)
 
+	fmt.Println("Starting server on port 8080")
+	http.ListenAndServe(":8080", mapHandler)
 }
