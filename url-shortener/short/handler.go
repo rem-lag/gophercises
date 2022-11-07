@@ -2,6 +2,8 @@ package short
 
 import (
 	"net/http"
+
+	"gopkg.in/yaml.v3"
 )
 
 // Maps shortened urls to full actual urls in the form of a map
@@ -24,9 +26,23 @@ func MapHandler(pathToUrl map[string]string, fallback http.Handler) http.Handler
 //
 //	-path: /short-path
 //	-url: https://www.a-real-website.com/whatever
-// func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
-// 	m := make(map[interface{}]interface{})
-// 	err = yaml.Unmarshal(yml, &m)
 
-// 	return nil, nil
-// }
+type yamlUrl struct {
+	Path string `yaml:"path"`
+	URL  string `yaml:"url"`
+}
+
+func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
+	var m []yamlUrl
+	err := yaml.Unmarshal(yml, &m)
+	if err != nil {
+		return nil, err
+	}
+
+	paths := make(map[string]string)
+	for _, p := range m {
+		paths[p.URL] = p.URL
+	}
+
+	return MapHandler(paths, fallback), nil
+}
