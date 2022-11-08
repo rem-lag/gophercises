@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"shorturl/short"
@@ -24,7 +23,7 @@ func main() {
 	yamlFile := flag.String("yaml", "urls.yaml", "a yaml file containing short path and URL")
 	flag.Parse()
 
-	file, err := ioutil.ReadFile(*yamlFile)
+	file, err := os.ReadFile(*yamlFile)
 	if err != nil {
 		fmt.Printf("Faile to open %s\n", *yamlFile)
 		os.Exit(1)
