@@ -41,7 +41,7 @@ func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
 
 	paths := make(map[string]string)
 	for _, p := range m {
-		paths[p.URL] = p.URL
+		paths[p.Path] = p.URL
 	}
 
 	return MapHandler(paths, fallback), nil
