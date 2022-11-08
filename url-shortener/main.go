@@ -1,8 +1,11 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"os"
 	"shorturl/short"
 )
 
@@ -18,6 +21,14 @@ func hello(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	yamlFile := flag.String("yaml", "urls.yaml", "a yaml file containing short path and URL")
+	flag.Parse()
+
+	file, err := ioutil.ReadFile(*yamlFile)
+	if err != nil {
+		fmt.Printf("Faile to open %s\n", *yamlFile)
+		os.Exit(1)
+	}
 
 	mux := defaultMux()
 	mapPaths := map[string]string{
@@ -27,13 +38,13 @@ func main() {
 
 	mapHandler := short.MapHandler(mapPaths, mux)
 
-	yaml := `
-- path: /yt
-  url: https://youtube.com
-- path: /tf-doc
-  url: https://www.tensorflow.org/api_docs
-`
-	yamlHandler, err := short.YAMLHandler([]byte(yaml), mapHandler)
+	// 	yaml := `
+	// - path: /yt
+	//   url: https://youtube.com
+	// - path: /tf-doc
+	//   url: https://www.tensorflow.org/api_docs
+	// `
+	yamlHandler, err := short.YAMLHandler([]byte(file), mapHandler)
 	if err != nil {
 		panic(err)
 	}
