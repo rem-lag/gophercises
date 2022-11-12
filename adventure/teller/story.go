@@ -36,10 +36,14 @@ func JsonStory(r io.Reader) (Story, error) {
 
 type handler struct {
 	s Story
+	t *template.Template
 }
 
-func NewHandler(s Story) http.Handler {
-	return handler{s}
+func NewHandler(s Story, t *template.Template) http.Handler {
+	if t == nil {
+		t = tmpl
+	}
+	return handler{s, t}
 }
 
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -50,7 +54,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path = path[1:]
 
 	if ch, ok := h.s[path]; ok {
-		err := tmpl.Execute(w, ch)
+		err := h.t.Execute(w, ch)
 		if err != nil {
 			log.Printf("%v", err)
 			http.Error(w, "Something went wrong...", http.StatusInternalServerError)
