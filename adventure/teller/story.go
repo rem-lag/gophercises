@@ -40,13 +40,24 @@ func JsonStory(r io.Reader) (Story, error) {
 
 }
 
-// Return handler struct with a template and the parsed story
-// Returned stuct used for ListenAndServe
-func NewHandler(s Story, t *template.Template) http.Handler {
-	if t == nil {
-		t = tmpl
+type HandlerOptions func(h *handler)
+
+func WithTemplate(t *template.Template) HandlerOptions {
+	return func(h *handler) {
+		h.t = t
 	}
-	return handler{s, t}
+}
+
+// Return handler struct with and desired Handler option funcs
+// that will be applied to the handler struct
+// Returned stuct used for ListenAndServe
+func NewHandler(s Story, opts ...HandlerOptions) http.Handler {
+	h := handler{s, tmpl}
+
+	for _, opt := range opts {
+		opt(&h)
+	}
+	return h
 }
 
 // Implements http.Handler interface
