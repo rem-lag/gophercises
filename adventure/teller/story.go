@@ -40,45 +40,12 @@ func JsonStory(r io.Reader) (Story, error) {
 
 }
 
-type HandlerOptions func(h *handler)
-
-func WithTemplate(t *template.Template) HandlerOptions {
-	return func(h *handler) {
-		h.t = t
-	}
-}
-
-func WithPathFn(fn func(r *http.Request) string) HandlerOptions {
-	return func(h *handler) {
-		h.pathFn = fn
-	}
-}
-
-// Return handler struct with and desired Handler option funcs
-// that will be applied to the handler struct
-// Returned stuct used for ListenAndServe
-func NewHandler(s Story, opts ...HandlerOptions) http.Handler {
-	h := handler{s, tmpl, defaultPath}
-
-	for _, opt := range opts {
-		opt(&h)
-	}
-	return h
-}
-
 // Implements http.Handler interface
+// so it can be used with http package
 type handler struct {
 	s      Story
 	t      *template.Template
 	pathFn func(r *http.Request) string
-}
-
-func defaultPath(r *http.Request) string {
-	path := strings.TrimSpace(r.URL.Path)
-	if path == "" || path == "/" {
-		path = "/intro"
-	}
-	return path[1:]
 }
 
 // Request endpoint should be chapter title
@@ -96,8 +63,46 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Chapter not found...", http.StatusNotFound)
 }
 
+// Function type user can pass to NewHandler to
+// set struct fields
+type HandlerOptions func(h *handler)
+
+func WithTemplate(t *template.Template) HandlerOptions {
+	return func(h *handler) {
+		h.t = t
+	}
+}
+
+func WithPathFn(fn func(r *http.Request) string) HandlerOptions {
+	return func(h *handler) {
+		h.pathFn = fn
+	}
+}
+
+func defaultPath(r *http.Request) string {
+	path := strings.TrimSpace(r.URL.Path)
+	if path == "" || path == "/" {
+		path = "/intro"
+	}
+	return path[1:]
+}
+
+// Return handler struct with and desired Handler option funcs
+// that will be applied to the handler struct
+// Returned stuct used for ListenAndServe
+func NewHandler(s Story, opts ...HandlerOptions) http.Handler {
+	h := handler{s, tmpl, defaultPath}
+
+	for _, opt := range opts {
+		opt(&h)
+	}
+	return h
+}
+
 var tmpl *template.Template
 
+// Pass sting of html template to parse into
+// type that can be used by the handler
 func ParseTemplate(temp string) *template.Template {
 	t := template.Must(template.New("").Parse(temp))
 	return t

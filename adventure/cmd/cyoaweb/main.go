@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+// Function to demonstrate usage option functions
 func CustomPath(r *http.Request) string {
 	path := strings.TrimSpace(r.URL.Path)
 	if path == "/story" || path == "/story/" {
