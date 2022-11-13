@@ -52,7 +52,7 @@ func WithTemplate(t *template.Template) HandlerOptions {
 // that will be applied to the handler struct
 // Returned stuct used for ListenAndServe
 func NewHandler(s Story, opts ...HandlerOptions) http.Handler {
-	h := handler{s, tmpl}
+	h := handler{s, tmpl, defaultPath}
 
 	for _, opt := range opts {
 		opt(&h)
@@ -62,19 +62,23 @@ func NewHandler(s Story, opts ...HandlerOptions) http.Handler {
 
 // Implements http.Handler interface
 type handler struct {
-	s Story
-	t *template.Template
+	s      Story
+	t      *template.Template
+	pathFn func(r *http.Request) string
+}
+
+func defaultPath(r *http.Request) string {
+	path := strings.TrimSpace(r.URL.Path)
+	if path == "" || path == "/" {
+		path = "/intro"
+	}
+	return path[1:]
 }
 
 // Request endpoint should be chapter title
 // Return requested story chapter with requested template
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	path := strings.TrimSpace(r.URL.Path)
-	if path == "" || path == "/" {
-		path = "/intro"
-	}
-	path = path[1:]
-
+	path := h.pathFn(r)
 	if ch, ok := h.s[path]; ok {
 		err := h.t.Execute(w, ch)
 		if err != nil {
