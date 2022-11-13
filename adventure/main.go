@@ -6,8 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"rem-lag/cyoa/teller"
 	"strings"
+
+	"rem-lag/cyoa/teller"
 )
 
 // Function to demonstrate usage option functions
