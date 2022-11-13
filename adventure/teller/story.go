@@ -9,19 +9,25 @@ import (
 	"strings"
 )
 
+// Story type contains a chapter title key and parsed json as Chapter struct value
 type Story map[string]Chapter
 
+// Struct for json story
+// Paragraph is story text, options field stored as slice of options struct
 type Chapter struct {
 	Title      string    `json:"title"`
 	Paragraphs []string  `json:"story"`
 	Options    []Options `json:"options"`
 }
 
+// Options field of json contains the prompt for the option (Text)
+// and chapter title (Chapter)
 type Options struct {
 	Text    string `json:"text"`
 	Chapter string `json:"arc"`
 }
 
+// Parses json into go Story type
 func JsonStory(r io.Reader) (Story, error) {
 	var story Story
 
@@ -34,11 +40,8 @@ func JsonStory(r io.Reader) (Story, error) {
 
 }
 
-type handler struct {
-	s Story
-	t *template.Template
-}
-
+// Return handler struct with a template and the parsed story
+// Returned stuct used for ListenAndServe
 func NewHandler(s Story, t *template.Template) http.Handler {
 	if t == nil {
 		t = tmpl
@@ -46,6 +49,14 @@ func NewHandler(s Story, t *template.Template) http.Handler {
 	return handler{s, t}
 }
 
+// Implements http.Handler interface
+type handler struct {
+	s Story
+	t *template.Template
+}
+
+// Request endpoint should be chapter title
+// Return requested story chapter with requested template
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimSpace(r.URL.Path)
 	if path == "" || path == "/" {
