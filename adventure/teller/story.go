@@ -48,6 +48,12 @@ func WithTemplate(t *template.Template) HandlerOptions {
 	}
 }
 
+func WithPathFn(fn func(r *http.Request) string) HandlerOptions {
+	return func(h *handler) {
+		h.pathFn = fn
+	}
+}
+
 // Return handler struct with and desired Handler option funcs
 // that will be applied to the handler struct
 // Returned stuct used for ListenAndServe
@@ -92,8 +98,13 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 var tmpl *template.Template
 
+func ParseTemplate(temp string) *template.Template {
+	t := template.Must(template.New("").Parse(temp))
+	return t
+}
+
 func init() {
-	tmpl = template.Must(template.New("").Parse(defaultHandlerTemp))
+	tmpl = ParseTemplate(defaultHandlerTemp)
 }
 
 var defaultHandlerTemp = `
