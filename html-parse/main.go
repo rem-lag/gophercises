@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"rem-lag/htmlparse/hparse"
+	"rem-lag/htmlparse/links"
 	"strings"
 )
 
 func main() {
 
 	r := strings.NewReader(exHtml)
-	links, err := hparse.Parse(r)
+	links, err := links.Parse(r)
 	if err != nil {
 		panic(err)
 	}
